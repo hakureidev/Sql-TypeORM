@@ -57,16 +57,63 @@ $ yarn run test:e2e
 # test coverage
 $ yarn run test:cov
 ```
+## Basic development flow.
 
-## Support
+```bash
+# install all required dependencies
+$ yarn add typeorm mysql2 @nestjs/typeorm
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+The first step we need to do is to establish the connection with our database using `new DataSource().initialize()` class imported from the `typeorm` package. The `initialize()` function returns a `Promise`, and therefore we have to create an [async provider](https://docs.nestjs.com/fundamentals/async-components).
+```typescript
+// database.providers.ts 
 
-## Stay in touch
+import { DataSource } from 'typeorm';
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+export const databaseProviders = [
+  {
+    provide: 'DATA_SOURCE',
+    useFactory: async () => {
+      const dataSource = new DataSource({
+        type: 'mysql',
+        host: 'localhost',
+        port: 3306,
+        username: 'root',
+        password: 'root',
+        database: 'test',
+        entities: [
+            __dirname + '/../**/*.entity{.ts,.js}',
+        ],
+        synchronize: true,
+      });
+
+      return dataSource.initialize();
+    },
+  },
+];
+```
+> [!WARNING]  
+> Setting `synchronize: true` shouldn't be used in production - otherwise you can lose production data. 
+
+> [!TIP] 
+> Following best practices, we declared the custom provider in the separated file which has a `*.providers.ts` suffix. 
+
+Then, we need to export these providers to make them **accessible** for the rest of the application.
+
+```typescript
+// database.module.ts 
+
+import { Module } from '@nestjs/common';
+import { databaseProviders } from './database.providers';
+
+@Module({
+  providers: [...databaseProviders],
+  exports: [...databaseProviders],
+})
+export class DatabaseModule {}
+```
+
+Now we can inject the `DATA_SOURCE` object using `@Inject()` decorator. Each class that would depend on the `DATA_SOURCE` async provider will wait until a `Promise` is resolved.
 
 ## License
 
