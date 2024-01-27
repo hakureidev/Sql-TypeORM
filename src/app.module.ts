@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   /**
@@ -6,7 +7,7 @@ import { Module } from '@nestjs/common';
    * controllers: Optional list of controllers defined in this module which have to be instantiated.
    * providers: Optional list of providers that will be instantiated by the Nest injector and that may be shared at least across this module.
    */
-  imports: [],
+  imports: [DatabaseModule],
   controllers: [],
   providers: [],
 })
