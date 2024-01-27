@@ -115,6 +115,12 @@ export class DatabaseModule {}
 
 Now we can inject the `DATA_SOURCE` object using `@Inject()` decorator. Each class that would depend on the `DATA_SOURCE` async provider will wait until a `Promise` is resolved.
 
+- TypeOrmModule: Initialize Database
+- <file_name>s.module.ts
+- <file_name>.entity.ts
+-  create-<file_name>.dto.ts
+- <file_name>s.service.ts
+
 ## License
 
 Nest is [MIT licensed](LICENSE).
